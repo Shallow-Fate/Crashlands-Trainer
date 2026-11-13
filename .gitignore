@@ -1,0 +1,11 @@
+/artifacts/
+/backups/
+/build/
+/dist/
+/tools/vendor/
+/tools/__pycache__/
+*.pdb
+*.obj
+*.ilk
+*.exp
+*.lib

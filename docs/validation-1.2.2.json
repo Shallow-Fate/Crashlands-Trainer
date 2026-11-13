@@ -1,0 +1,74 @@
+{
+  "version": "1.2.2",
+  "validated_at": "2026-11-14T01:32:59+08:00",
+  "platform": "Windows x64",
+  "steam_build": "20483884",
+  "game_version": "1.5.143-rc.0 / Publish 100.0.165.0",
+  "game_exe_sha256": "a0fa1008f3f9903701765dc168c25c68bba95bda248899d60e325c6a1c9a4b4d",
+  "build_succeeded": true,
+  "native_integration_assertions": 2036,
+  "native_integration_passed": true,
+  "context_specific_call_sites_verified": 9,
+  "legendary_source_calls_verified": 11,
+  "legendary_unique_items": 9,
+  "legendary_items": [
+    {
+      "item_id": 833,
+      "name_en": "Oddly Shaped Crystal",
+      "name_zh": "形状古怪的水晶"
+    },
+    {
+      "item_id": 830,
+      "name_en": "The Megagong",
+      "name_zh": "神兵鱼"
+    },
+    {
+      "item_id": 843,
+      "name_en": "Torso Demon",
+      "name_zh": "躯体恶魔"
+    },
+    {
+      "item_id": 832,
+      "name_en": "Ancient Watch Parts",
+      "name_zh": "古代手表部件"
+    },
+    {
+      "item_id": 840,
+      "name_en": "Physics Research",
+      "name_zh": "物理学研究"
+    },
+    {
+      "item_id": 831,
+      "name_en": "The Hydrablade",
+      "name_zh": "三刃草叶"
+    },
+    {
+      "item_id": 836,
+      "name_en": "Blimpsack",
+      "name_zh": "小飞艇气囊"
+    },
+    {
+      "item_id": 838,
+      "name_en": "The Everliving Pulp",
+      "name_zh": "永生浆"
+    },
+    {
+      "item_id": 109,
+      "name_en": "Giant Fossilized Skull",
+      "name_zh": "巨大头骨化石"
+    }
+  ],
+  "in_game_test": false,
+  "limitation": "Hidden legendary material first drops have not been verified in the running game.",
+  "minhook_provenance_verified": true,
+  "package_contents_verified": true,
+  "release_files": {
+    "CrashlandsTrainer.exe": "b47644be8bbe31ca2308f66db997ab2407c24427754f295114e2a99b327e91d6",
+    "CrashlandsTrainer.dll": "301ccc9fceec4a39e777b562edb028c065ee624b0fd406630afe280be666a804",
+    "README.md": "9ae0e35e81cac25d4e266acaa34031823f232a06321a5ddd5b9e022cdd138c2e",
+    "MinHook-LICENSE.txt": "d5c2224982b0b95a16b098a561335fa93f3eaf4d0aa964b7843edb986df78dc8"
+  },
+  "zip_name": "CrashlandsTrainer-1.2.2.zip",
+  "zip_size": 123260,
+  "zip_sha256": "e95447151ca1761daf3dd08094dceaf051c46fc9f723ce7531f9a75241ea2154"
+}

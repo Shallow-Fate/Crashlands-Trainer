@@ -38,13 +38,18 @@ static RV* mockBuiltin(void*,void*,RV* result,int n,int fn,RV** args) {
     return result;
 }
 static double receivedAmount,receivedQuality;static int gainCalls,extraArgument,generated,renamed;
+static int generatedArgc,generatedItem,generatedIndex;static double generatedMode;
 static RV* mockGain(void*,void*,RV* r,int n,RV** a) {gainCalls++;receivedAmount=a[1]->number();extraArgument=n==4?static_cast<int>(a[3]->number()):-1;*r=RV::number(1);return r;}
 static RV* mockRename(void*,void*,RV* r,int,RV**) {renamed++;*r=RV::number(0);return r;}
-static RV* mockGenerate(void* s,void* o,RV* r,int,RV** a) {
-    generated++;receivedQuality=a[1]->number();RV pool=RV::number(200),dummy;RV* args[]={&pool};
+static RV* mockGenerate(void* s,void* o,RV* r,int n,RV** a) {
+    generated++;receivedQuality=a[1]->number();generatedArgc=n;generatedItem=static_cast<int>(a[0]->number());
+    generatedIndex=n>=3?static_cast<int>(a[2]->number()):0;generatedMode=n>=4?a[3]->number():-1;
+    RV* quality=array_at(array_at(global(offsets::var_EQUIPMENT),generatedIndex),2);
+    if(quality)*quality=*a[1];
+    RV pool=RV::number(200),dummy;RV* args[]={&pool};
     uintptr_t previous=testCaller;testCaller=0x4930fa;
     hookBuiltin(s,o,&dummy,1,id(offsets::var_ds_list_destroy),args);testCaller=previous;
-    *r=RV::number(0);return r;
+    *r=RV::number(generatedIndex);return r;
 }
 static RV* mockCraft(void* s,void* o,RV* r,int n,RV** a) {return hookGenerate(s,o,r,n,a);}
 static RV* mockTakeGain(void* s,void* o,RV* r,int n,RV** a) {return hookGain(s,o,r,n,a);}
@@ -207,6 +212,67 @@ int main() {
     CHECK(lists[100].size()==28);CHECK(extremeEquipment(nullptr,nullptr,0));
     // Weapon base stats have no native cap, so they also keep their original values.
     for(int i:{3,4,6}){stat=RV::number(i);hookEquipStat(nullptr,nullptr,&result,2,statArgs);CHECK(result.number()==0.2);}
+    // reroll_item calls generate_randomized_equipment(item, quality, existingIndex, 1),
+    // then refreshes equipped stats and inventory. Exercise its real four-argument
+    // generator boundary, including a nonzero destination index and repeated rerolls.
+    RV craftedEquipment=*global(offsets::var_EQUIPMENT);
+    globals[id(offsets::var_EQUIPMENT)]=makeArray(3);
+    for(int eq=0;eq<3;eq++) {
+        *array_at(global(offsets::var_EQUIPMENT),eq)=makeArray(4);
+        *array_at(array_at(global(offsets::var_EQUIPMENT),eq),0)=RV::number(70+eq);
+        *array_at(array_at(global(offsets::var_EQUIPMENT),eq),1)=RV::number(eq==2?5:0);
+        *array_at(array_at(global(offsets::var_EQUIPMENT),eq),2)=RV::number(1);
+        *array_at(array_at(global(offsets::var_EQUIPMENT),eq),3)=makeHandle(600+eq);
+    }
+    lists[600]={RV::number(7)};
+    for(int destination:{1,2}) for(double oldQuality:{0.0,1.0,3.0,4.0,5.0}) for(double minimum:{0.0,6.0}) {
+        RV reforgeItem=RV::number(destination==2?5:0),reforgeQuality=RV::number(oldQuality);
+        RV reforgeIndex=RV::number(destination),reforgeMode=RV::number(1);
+        RV* reforgeArgs[]={&reforgeItem,&reforgeQuality,&reforgeIndex,&reforgeMode};
+        *array_at(array_at(global(offsets::var_ITEMINFO),static_cast<int>(reforgeItem.number())),9)=RV::number(minimum);
+        lists[600+destination]=destination==2?std::vector<RV>{RV::number(3),RV::number(4),RV::number(6)}:std::vector<RV>{RV::number(1)};
+        double expectedQuality=std::max({4.0,oldQuality,minimum});
+        reset(state,2);testCaller=offsets::reforge_generate_return;int beforeGenerated=generated,beforeRenamed=renamed;
+        hookGenerate(nullptr,nullptr,&result,4,reforgeArgs);
+        CHECK(result.number()==destination);CHECK(generated==beforeGenerated+1);CHECK(renamed==beforeRenamed+1);
+        CHECK(generatedArgc==4);CHECK(generatedItem==reforgeItem.number());CHECK(generatedIndex==destination);CHECK(generatedMode==1);
+        CHECK(receivedQuality==expectedQuality);CHECK(reforgeQuality.number()==oldQuality);
+        CHECK(reforgeIndex.number()==destination);CHECK(reforgeMode.number()==1);CHECK(reforgeItem.number()==(destination==2?5:0));
+        CHECK(array_at(array_at(global(offsets::var_EQUIPMENT),destination),0)->number()==70+destination);
+        CHECK(array_at(array_at(global(offsets::var_EQUIPMENT),destination),1)->number()==reforgeItem.number());
+        CHECK(array_at(array_at(global(offsets::var_EQUIPMENT),destination),2)->number()==expectedQuality);
+        CHECK(state.lastQuality==expectedQuality);CHECK(state.lastAffixes==(destination==2?28:25));CHECK(state.hits[1]==1);
+        CHECK(lists[600].size()==1&&lists[600][0].number()==7);
+        CHECK(array_at(array_at(global(offsets::var_EQUIPMENT),0),2)->number()==1);
+        CHECK(extremeEquipment(nullptr,nullptr,destination));CHECK(craftDepth==0&&takeDepth==0&&equipmentContext==nullptr);
+        int pos=0;for(int st=0;st<29;st++) if(equipmentAffix(st)||(destination==2&&(st==3||st==4||st==6))) CHECK(lists[600+destination][pos++].number()==st);
+        RV eq=RV::number(destination),st;RV* query[]={&eq,&st};
+        for(int statId=0;statId<36;statId++) {
+            st=RV::number(statId);hookEquipStat(nullptr,nullptr,&result,2,query);
+            double cap=nativeCapForTest(statId);
+            CHECK(result.number()==(equipmentAffix(statId)&&cap>0?cap:0.2));
+        }
+        hookGenerate(nullptr,nullptr,&result,4,reforgeArgs);
+        CHECK(lists[600+destination].size()==static_cast<size_t>(destination==2?28:25));CHECK(state.hits[1]==2);
+    }
+    // A reroll without feature 2, an expired client, or an unrelated/adjacent
+    // caller must retain native quality and affixes, even with the same arguments.
+    RV reforgeItem=RV::number(0),reforgeQuality=RV::number(1),reforgeIndex=RV::number(1),reforgeMode=RV::number(1);
+    RV* reforgeArgs[]={&reforgeItem,&reforgeQuality,&reforgeIndex,&reforgeMode};
+    *array_at(array_at(global(offsets::var_ITEMINFO),0),9)=RV::number(0);
+    for(int flags:{0,1,4,8,16,32,64,125}) {
+        reset(state,flags);testCaller=offsets::reforge_generate_return;lists[601]={RV::number(5)};int before=renamed;
+        hookGenerate(nullptr,nullptr,&result,4,reforgeArgs);
+        CHECK(receivedQuality==1);CHECK(lists[601].size()==1&&lists[601][0].number()==5);CHECK(renamed==before);CHECK(state.hits[1]==0);
+    }
+    reset(state,2);state.clientTick=GetTickCount()-3000;lists[601]={RV::number(5)};
+    hookGenerate(nullptr,nullptr,&result,4,reforgeArgs);CHECK(receivedQuality==1);CHECK(lists[601].size()==1);CHECK(state.hits[1]==0);
+    for(uintptr_t caller:{uintptr_t(0),offsets::reforge_generate_return-1,offsets::reforge_generate_return+1}) {
+        reset(state,2);testCaller=caller;lists[601]={RV::number(5)};
+        hookGenerate(nullptr,nullptr,&result,4,reforgeArgs);CHECK(receivedQuality==1);CHECK(lists[601].size()==1);CHECK(state.hits[1]==0);
+    }
+    testCaller=0;globals[id(offsets::var_EQUIPMENT)]=craftedEquipment;
+    *array_at(array_at(global(offsets::var_ITEMINFO),5),9)=RV::number(0);
     // Instant gathering temporarily collapses the native gather swing timing, then restores it.
     void* instanceVtable[]={nullptr,reinterpret_cast<void*>(mockInstanceGet),reinterpret_cast<void*>(mockInstanceSet)};
     InstanceObject instance{instanceVtable};

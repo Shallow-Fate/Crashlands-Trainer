@@ -151,8 +151,11 @@ static RV* hookCraft(void* s,void* o,RV* r,int n,RV** a) {
 }
 static RV* hookGenerate(void* s,void* o,RV* r,int n,RV** a) {
     uintptr_t caller=CALLER_RVA;
-    // Queued station crafting generates the equipment when its completed item is collected.
-    if(!enabled(1) || (!craftDepth && !takeDepth && caller!=0xba43e0) || n<2 || n>16) return originalGenerate(s,o,r,n,a);
+    // Station collection and Juiceforge rerolls both use this native generator.
+    // Match only their verified call sites so eligibility, juice costs, the existing
+    // equipment index and the native refresh after a reroll remain intact.
+    bool equipmentSource=craftDepth || takeDepth || caller==offsets::station_generate_return || caller==offsets::reforge_generate_return;
+    if(!enabled(1) || !equipmentSource || n<2 || n>16) return originalGenerate(s,o,r,n,a);
     RV quality=RV::number(4);
     if(a[1]->numeric()) quality.value.real=std::max(4.0,a[1]->number());
     if(a[0]->numeric()) {
@@ -381,7 +384,7 @@ static DWORD WINAPI initialize(void*) {
         MH_DisableHook(MH_ALL_HOOKS);shared->flags=0;shared->status=-1;
         strcpy_s(shared->detail,"Hook initialization failed; no features are active.");return 4;
     }
-    shared->status=1;strcpy_s(shared->detail,"Trainer 1.2.2; Steam build 20483884: 18 native hooks active.");
+    shared->status=1;strcpy_s(shared->detail,"Trainer 1.3.0; Steam build 20483884: 18 native hooks active.");
     return 0;
 }
 

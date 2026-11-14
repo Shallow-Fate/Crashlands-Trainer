@@ -129,12 +129,12 @@ sealed class TrainerForm : Form {
     readonly Label status=new Label();readonly Label[] counters=new Label[7];readonly TextBox path=new TextBox();
     readonly Timer timer=new Timer();bool errorShown;
     public TrainerForm() {
-        Text="崩溃大陆 · 七项修改器 1.2.2";ClientSize=new Size(700,694);MinimumSize=new Size(716,733);MaximizeBox=false;
+        Text="崩溃大陆 · 七项修改器 1.3.0";ClientSize=new Size(700,694);MinimumSize=new Size(716,733);MaximizeBox=false;
         Font=new Font("Microsoft YaHei UI",10);BackColor=Color.FromArgb(246,248,251);StartPosition=FormStartPosition.CenterScreen;
         Controls.Add(new Label { Text="崩溃大陆修改器",Font=new Font(Font.FontFamily,22,FontStyle.Bold),Location=new Point(26,22),AutoSize=true });
         Controls.Add(new Label { Text="选择功能后启动游戏，修改器会自动连接。",Location=new Point(29,70),AutoSize=true,ForeColor=Color.DimGray });
         string[] titles={"获取材料与制作成品数量 ×10000","最高品质装备、全词条与原生极限","符合条件的图纸首次全部掉落","人物移动速度 ×10","采集全掉落、隐藏材料首次必掉","瞬间制作","瞬间完成采集"};
-        string[] descriptions={"仅放大可堆叠物品；不可堆叠物品、装备和图纸保持原数量。","全部 25 种原生附加词条；有上限的词条取原生上限，无上限的保留原生数值。","稀有图纸不再被误筛除，兼容锯齿草的三刃木爪。","只修改人物移动计算，不会随帧数累乘。","采集掉落全部有效物品；隐藏传说材料首次触发必掉。","无需等待制作倒计时，材料仍正常消耗。","采集挥动间隔缩至最短；仍需对准资源并按住采集。"};
+        string[] descriptions={"仅放大可堆叠物品；不可堆叠物品、装备和图纸保持原数量。","制作、领取和果汁熔炉重铸均生效；全 25 种附加词条，数值遵循原生上限。","稀有图纸不再被误筛除，兼容锯齿草的三刃木爪。","只修改人物移动计算，不会随帧数累乘。","采集掉落全部有效物品；隐藏传说材料首次触发必掉。","无需等待制作倒计时，材料仍正常消耗。","采集挥动间隔缩至最短；仍需对准资源并按住采集。"};
         for(int i=0;i<7;i++) {
             int y=113+i*65;
             checks[i]=new CheckBox { Text=titles[i],Checked=true,Location=new Point(30,y),Size=new Size(570,26),Font=new Font(Font,FontStyle.Bold) };Controls.Add(checks[i]);

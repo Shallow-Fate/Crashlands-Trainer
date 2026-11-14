@@ -1,0 +1,50 @@
+{
+  "version": "1.3.0",
+  "validated_at": "2026-11-14T16:06:58+08:00",
+  "platform": "Windows x64",
+  "steam_build": "20483884",
+  "game_version": "1.5.143-rc.0 / Publish 100.0.165.0",
+  "game_exe_sha256": "a0fa1008f3f9903701765dc168c25c68bba95bda248899d60e325c6a1c9a4b4d",
+  "build_succeeded": true,
+  "native_integration_assertions": 3810,
+  "native_integration_passed": true,
+  "test_coverage": [
+    "All previous 2036 integration assertions",
+    "Four-argument rerolls to nonzero armor and weapon equipment indices",
+    "Original qualities 0, 1, 3, 4, 5 and database minimum qualities 0, 6",
+    "25 affixes for armor, up to 28 stats for weapons, unchanged base stats",
+    "All 36 stat queries: finite native caps or original native formulas",
+    "Repeated rerolls do not duplicate affixes; other equipment remains untouched",
+    "Feature flag isolation, expired heartbeat and unrelated/adjacent caller isolation"
+  ],
+  "context_specific_call_sites_verified": 10,
+  "native_reroll_flow": {
+    "function_rva": "0x9a3970",
+    "generator_return_rva": "0x9a42da",
+    "generator_argc": 4,
+    "native_call_order": [
+      "can_reroll",
+      "reroll_juice_cost",
+      "lose_stackable_item",
+      "generate_randomized_equipment",
+      "update_character_equipment",
+      "reload_all_inventory_slot_item"
+    ],
+    "verified": true
+  },
+  "legendary_source_calls_verified": 11,
+  "legendary_unique_items": 9,
+  "in_game_test": false,
+  "limitation": "Juiceforge rerolls and hidden legendary material first drops have not been verified in the running game.",
+  "minhook_provenance_verified": true,
+  "package_contents_verified": true,
+  "release_files": {
+    "CrashlandsTrainer.exe": "6e72c62d70bba4a57fbd47e189b9dd4295ed794a8d18a427eb30cbb90ca80932",
+    "CrashlandsTrainer.dll": "bee33cb2d6f735e121971c66ccc6383cb9dd89bde960eb6f138ed76c7eb18fe6",
+    "README.md": "eb4693fae46de53ab1a3de4e7fb61460075208ee989049745552a1d2f71ee0ce",
+    "MinHook-LICENSE.txt": "d5c2224982b0b95a16b098a561335fa93f3eaf4d0aa964b7843edb986df78dc8"
+  },
+  "zip_name": "CrashlandsTrainer-1.3.0.zip",
+  "zip_size": 123642,
+  "zip_sha256": "0265e862d5e36ae2a6ad3ceea6f563ec2412f819b05b7528011f22525006ed34"
+}

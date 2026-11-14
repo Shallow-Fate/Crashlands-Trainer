@@ -4,6 +4,8 @@ namespace offsets {
 constexpr uintptr_t gain_item=0x4671d0;
 constexpr uintptr_t craft_recipe=0x30bca0;
 constexpr uintptr_t generate_randomized_equipment=0x48ec10;
+constexpr uintptr_t station_generate_return=0xba43e0;
+constexpr uintptr_t reforge_generate_return=0x9a42da;
 constexpr uintptr_t drop_itemdrops=0x3edac0;
 constexpr uintptr_t drop_items=0x3f01d0;
 constexpr uintptr_t check_for_recipe_drop=0x2ae280;

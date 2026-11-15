@@ -1,17 +1,19 @@
-# 崩溃大陆七项修改器 1.3.0
+# 崩溃大陆七项修改器 1.3.1
 
 适配 Steam《Crashlands》1.5.143-rc.0 / Publish 100.0.165.0，Steam build **20483884**，Windows x64。
 
 ## 下载
 
 - [最新 Release](https://github.com/Shallow-Fate/Crashlands-Trainer/releases/latest)
-- [1.3.0 发布说明](https://github.com/Shallow-Fate/Crashlands-Trainer/releases/tag/v1.3.0)
-- [下载 CrashlandsTrainer-1.3.0.zip](https://github.com/Shallow-Fate/Crashlands-Trainer/releases/download/v1.3.0/CrashlandsTrainer-1.3.0.zip)
-- [SHA-256 校验文件](https://github.com/Shallow-Fate/Crashlands-Trainer/releases/download/v1.3.0/CrashlandsTrainer-1.3.0.zip.sha256)
+- [1.3.1 发布说明](https://github.com/Shallow-Fate/Crashlands-Trainer/releases/tag/v1.3.1)
+- [下载 CrashlandsTrainer-1.3.1.zip](https://github.com/Shallow-Fate/Crashlands-Trainer/releases/download/v1.3.1/CrashlandsTrainer-1.3.1.zip)
+- [SHA-256 校验文件](https://github.com/Shallow-Fate/Crashlands-Trainer/releases/download/v1.3.1/CrashlandsTrainer-1.3.1.zip.sha256)
 
-下载 Release 中的成品 ZIP 即可使用；GitHub 自动生成的 Source code 压缩包用于查看或构建源码，不包含编译好的修改器。当前仓库为私有仓库，访问仓库和下载附件需要具有访问权限的 GitHub 账号。
+仓库公开，可直接下载 Release 中的成品 ZIP 使用。GitHub 自动生成的 Source code 压缩包用于查看或构建源码，不包含编译好的修改器。
 
 ## 本版更新
+
+**1.3.1**：自动保存每位用户自己指定的游戏路径。通过“浏览”选定后立即保存；手动输入后离开路径框、启动游戏或关闭修改器时也会保存。再次打开优先恢复该用户上次保存的路径，命令行模式也读取同一设置。
 
 **1.3.0**：第二项扩展到果汁熔炉重铸。重铸后的护甲和武器与制作成品使用同一套最高品质、全部 25 种原生附加词条和原生上限规则；保留更高的固定品质和武器基础属性。重铸仍需满足原版资格并正常消耗果汁，装备等级和物品种类保持原版重铸行为。
 
@@ -21,13 +23,15 @@
 
 ## 使用
 
-1. 退出旧版修改器和游戏，完整解压 CrashlandsTrainer-1.3.0.zip。
-2. 运行 CrashlandsTrainer.exe；七项功能默认全部勾选，按需取消。若游戏安装在其他位置，点击“浏览”选择实际的 Crashlands.exe。
+1. 退出旧版修改器和游戏，完整解压 CrashlandsTrainer-1.3.1.zip。
+2. 运行 CrashlandsTrainer.exe；七项功能默认全部勾选，按需取消。若游戏安装在其他位置，点击“浏览”选择实际的 Crashlands.exe，路径会自动保存，下次打开无需重新选择。
 3. 点击“启动游戏”，或从 Steam 启动。显示“已连接”后生效。
 4. 已有普通装备和武器可在第二项启用时进行一次果汁熔炉重铸，获得与制作相同的品质和完整词条；重铸正常消耗果汁，仅打开熔炉界面不会修改装备。
 5. 取消勾选关闭对应效果，“全部关闭”关闭所有效果。退出修改器后，最迟约 2.5 秒停用运行时效果。
 
 EXE 和 DLL 必须放在同一目录，无需复制到游戏目录。旧版 DLL 已注入的游戏进程必须退出后重开。
+
+游戏路径保存在当前 Windows 账户的 `%LOCALAPPDATA%\CrashlandsTrainer\game-path.txt`，每位用户独立保存，移动或更新修改器目录后仍可读取；个人路径配置不包含在分发压缩包中。尚未保存时才使用初始默认路径。若游戏临时不在原位置，仍保留已保存路径；安装位置改变后重新选择即可。
 
 ## 七项功能
 
@@ -74,12 +78,12 @@ EXE 和 DLL 必须放在同一目录，无需复制到游戏目录。旧版 DLL 
 - **提示游戏版本不匹配**：本版仅支持 Steam build 20483884；启动器会拒绝连接其他版本。
 - **更新后提示仍加载其他版本**：先退出游戏和旧修改器，再从完整解压的新目录重新运行。
 - **隐藏材料没有再次掉落**：检查第五项是否启用、是否触发对应来源，以及存档是否已记录该材料掉落。任务/持有排除仍然有效；地面物品需要自行拾取。
-- **重铸没有获得完整词条**：确认使用 1.3.0 的 EXE 和 DLL，第二项功能已启用并显示已连接，再进行一次果汁熔炉重铸；仅打开熔炉界面不会修改现有装备。
+- **重铸没有获得完整词条**：确认使用同一压缩包中的 EXE 和 DLL，版本为 1.3.0 或更新版本，第二项功能已启用并显示已连接，再进行一次果汁熔炉重铸；仅打开熔炉界面不会修改现有装备。
 - **关闭后物品或图纸还在**：已经保存的获取结果不会自动撤销；退出游戏后可恢复“存档备份”中的对应备份。
 
 ## 开发与验证
 
-启动器源码为 [src/Trainer.cs](src/Trainer.cs)，原生钩子为 [src/native/trainer.cpp](src/native/trainer.cpp)，模拟集成测试为 [tests/native-tests.cpp](tests/native-tests.cpp)。第三方 MinHook 源码随仓库提供。
+启动器源码为 [src/Trainer.cs](src/Trainer.cs)，原生钩子为 [src/native/trainer.cpp](src/native/trainer.cpp)，模拟集成测试为 [tests/native-tests.cpp](tests/native-tests.cpp)，路径持久化测试为 [tests/launcher-tests.cs](tests/launcher-tests.cs)。第三方 MinHook 源码随仓库提供。
 
 构建需要 Windows x64、Visual Studio 2022 的 C++ 桌面开发工具及 Windows 自带的 .NET Framework 4.x C# 编译器。`tools/build.cmd` 中的 `vcvars64.bat` 默认为 `D:\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`，其他安装位置需先修改该路径。然后在仓库根目录的 PowerShell 中运行：
 
@@ -89,11 +93,13 @@ if ($LASTEXITCODE -ne 0) { throw '构建或测试失败' }
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\package.ps1
 ```
 
-构建脚本会编译 EXE、DLL 并运行原生模拟集成测试；成品位于 `dist/CrashlandsTrainer-v1.3.0/`，发布包为 `dist/CrashlandsTrainer-1.3.0.zip`。
+构建脚本会编译 EXE、DLL，并运行原生模拟集成测试和启动器路径持久化测试；成品位于 `dist/CrashlandsTrainer-v1.3.1/`，发布包为 `dist/CrashlandsTrainer-1.3.1.zip`，打包脚本同时生成对应的 `.zip.sha256` 校验文件。
+
+**1.3.1 通过 19 项启动器路径持久化断言和 3810 项原生模拟集成断言。** 启动器测试覆盖跨进程重启、不同工作目录、不同用户配置、中文及空格路径、手动编辑后离开输入框、关闭时保存、游戏路径暂时不存在，以及写入失败时保留原配置和清理临时文件。测试使用独立临时目录，不改写本机的个人路径设置，也不启动游戏。1.3.1 校验摘要见 [docs/validation-1.3.1.json](docs/validation-1.3.1.json)。
 
 模拟集成测试使用 GameMaker 数组、数值及引用类型调用真实钩子，覆盖倍率、制作领取、完整词条、原生上限、无上限词条回退、武器基础值、瞬间制作、瞬间采集、图纸去重、资源掉落、移速、开关和心跳失效。1.3.0 通过 **3810 项原生模拟集成断言**，新增护甲/武器重铸的四参数调用、原位装备索引、品质与固定品质下限、全部词条、反复重铸不重复、原生数值、功能隔离及心跳失效验证。此前 9 种传说材料相关断言仍全部通过。另核对原版 EXE 的重铸生成调用、资格/消耗/刷新调用顺序、11 处传说调用及其他上下文调用地址。发布校验摘要见 [docs/validation-1.3.0.json](docs/validation-1.3.0.json)。
 
-**1.3.0 尚未实机验证果汁熔炉重铸及隐藏材料首次掉落。** 模拟测试和原版地址检查不等于游戏内验证；历史版本的实机记录也不能替代本次改动的实机结果。
+**1.3.1 未进行真实“浏览”对话框的交互测试或游戏内测试，果汁熔炉重铸及隐藏材料首次掉落仍待实机验证。** 模拟测试和原版地址检查不等于游戏内验证；历史版本的实机记录也不能替代本次改动的实机结果。
 
 `tools/verify-target.py` 和 `tools/verify-hidden-drops.py` 用于原版地址核对，需要 Python、`pefile`、`capstone` 和匹配的原版游戏文件；后者还依赖本地逆向生成的 `artifacts/` 映射、反编译文件及游戏中英文文本。`artifacts/` 未上传，独立构建与原生模拟测试不依赖这些分析材料。
 

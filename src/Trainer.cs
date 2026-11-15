@@ -16,10 +16,11 @@ static class Program {
         if (args.Length > 0 && args[0] == "--headless") {
             int seconds = args.Length > 1 ? int.Parse(args[1]) : 300;
             int flags = args.Length > 2 ? int.Parse(args[2]) : 127;
+            string gamePath = new GamePathSettings().Load();
             using (var session = new TrainerSession()) {
                 var end = DateTime.UtcNow.AddSeconds(seconds);
                 while (DateTime.UtcNow < end) {
-                    try { session.Tick(DefaultGame, flags); Console.WriteLine(session.Snapshot()); }
+                    try { session.Tick(gamePath, flags); Console.WriteLine(session.Snapshot()); }
                     catch (Exception e) { Console.WriteLine(e.Message); }
                     System.Threading.Thread.Sleep(500);
                 }
@@ -28,6 +29,29 @@ static class Program {
         }
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         Application.Run(new TrainerForm());
+    }
+}
+
+sealed class GamePathSettings {
+    readonly string file;
+    public GamePathSettings() : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"CrashlandsTrainer","game-path.txt")) { }
+    internal GamePathSettings(string file) { this.file=file; }
+    public string Load() {
+        try {
+            string value=File.ReadAllText(file,Encoding.UTF8).Trim();
+            return value.Length==0?Program.DefaultGame:value;
+        } catch(IOException) { return Program.DefaultGame; }
+          catch(UnauthorizedAccessException) { return Program.DefaultGame; }
+    }
+    public void Save(string gamePath) {
+        if(string.IsNullOrWhiteSpace(gamePath))return;
+        Directory.CreateDirectory(Path.GetDirectoryName(file));
+        string temporary=file+"."+Guid.NewGuid().ToString("N")+".tmp";
+        try {
+            File.WriteAllText(temporary,gamePath.Trim(),new UTF8Encoding(false));
+            if(File.Exists(file))File.Replace(temporary,file,null);
+            else File.Move(temporary,file);
+        } finally { if(File.Exists(temporary))File.Delete(temporary); }
     }
 }
 
@@ -128,8 +152,11 @@ sealed class TrainerForm : Form {
     readonly TrainerSession session=new TrainerSession(); readonly CheckBox[] checks=new CheckBox[7];
     readonly Label status=new Label();readonly Label[] counters=new Label[7];readonly TextBox path=new TextBox();
     readonly Timer timer=new Timer();bool errorShown;
-    public TrainerForm() {
-        Text="崩溃大陆 · 七项修改器 1.3.0";ClientSize=new Size(700,694);MinimumSize=new Size(716,733);MaximizeBox=false;
+    readonly GamePathSettings settings;string savedGamePath;
+    public TrainerForm() : this(new GamePathSettings()) { }
+    internal TrainerForm(GamePathSettings settings) {
+        this.settings=settings;
+        Text="崩溃大陆 · 七项修改器 1.3.1";ClientSize=new Size(700,694);MinimumSize=new Size(716,733);MaximizeBox=false;
         Font=new Font("Microsoft YaHei UI",10);BackColor=Color.FromArgb(246,248,251);StartPosition=FormStartPosition.CenterScreen;
         Controls.Add(new Label { Text="崩溃大陆修改器",Font=new Font(Font.FontFamily,22,FontStyle.Bold),Location=new Point(26,22),AutoSize=true });
         Controls.Add(new Label { Text="选择功能后启动游戏，修改器会自动连接。",Location=new Point(29,70),AutoSize=true,ForeColor=Color.DimGray });
@@ -141,14 +168,21 @@ sealed class TrainerForm : Form {
             Controls.Add(new Label { Text=descriptions[i],Location=new Point(52,y+29),AutoSize=true,Font=new Font(Font.FontFamily,9),ForeColor=Color.DimGray });
             counters[i]=new Label { Text="",Location=new Point(593,y+4),Size=new Size(77,22),TextAlign=ContentAlignment.MiddleRight,ForeColor=Color.FromArgb(40,110,80) };Controls.Add(counters[i]);
         }
-        path.Text=Program.DefaultGame;path.SetBounds(30,576,588,28);Controls.Add(path);
-        var browse=new Button { Text="浏览",Location=new Point(625,574),Size=new Size(50,30) };browse.Click+=(s,e)=>{using(var d=new OpenFileDialog { Filter="Crashlands.exe|Crashlands.exe",FileName="Crashlands.exe" })if(d.ShowDialog()==DialogResult.OK)path.Text=d.FileName;};Controls.Add(browse);
+        savedGamePath=settings.Load();path.Text=savedGamePath;path.SetBounds(30,576,588,28);Controls.Add(path);
+        path.Validated+=(s,e)=>SaveGamePath();
+        var browse=new Button { Text="浏览",Location=new Point(625,574),Size=new Size(50,30) };browse.Click+=(s,e)=>{using(var d=new OpenFileDialog { Filter="Crashlands.exe|Crashlands.exe",FileName="Crashlands.exe" })if(d.ShowDialog()==DialogResult.OK){path.Text=d.FileName;SaveGamePath();}};Controls.Add(browse);
         var start=new Button { Text="启动游戏",Location=new Point(30,617),Size=new Size(125,36),BackColor=Color.FromArgb(25,100,185),ForeColor=Color.White,FlatStyle=FlatStyle.Flat };
-        start.Click+=(s,e)=>{try { if(!File.Exists(path.Text))throw new FileNotFoundException("游戏路径不存在。");Process.Start(new ProcessStartInfo(path.Text){WorkingDirectory=Path.GetDirectoryName(path.Text)}); }catch(Exception x){MessageBox.Show(x.Message,Text);} };Controls.Add(start);
+        start.Click+=(s,e)=>{SaveGamePath();try { if(!File.Exists(path.Text))throw new FileNotFoundException("游戏路径不存在。");Process.Start(new ProcessStartInfo(path.Text){WorkingDirectory=Path.GetDirectoryName(path.Text)}); }catch(Exception x){MessageBox.Show(x.Message,Text);} };Controls.Add(start);
         var off=new Button { Text="全部关闭",Location=new Point(165,617),Size=new Size(120,36) };off.Click+=(s,e)=>{foreach(var c in checks)c.Checked=false;session.Off();};Controls.Add(off);
         status.SetBounds(303,621,372,28);status.Text="等待游戏启动";status.TextAlign=ContentAlignment.MiddleRight;Controls.Add(status);
         Controls.Add(new Label { Text="关闭后效果停用；已获得的数量、品质与词条仍会保留。",Location=new Point(30,666),AutoSize=true,Font=new Font(Font.FontFamily,9),ForeColor=Color.DimGray });
-        timer.Interval=400;timer.Tick+=(s,e)=>Poll();timer.Start();FormClosing+=(s,e)=>{timer.Stop();session.Dispose();};
+        timer.Interval=400;timer.Tick+=(s,e)=>Poll();timer.Start();FormClosing+=(s,e)=>{timer.Stop();SaveGamePath();session.Dispose();};
+    }
+    void SaveGamePath() {
+        string value=path.Text.Trim();
+        if(value.Length==0 || value==savedGamePath)return;
+        try { settings.Save(value);savedGamePath=value; }
+        catch(Exception e) { MessageBox.Show("无法保存游戏路径，下次打开可能需要重新选择。\n"+e.Message,Text,MessageBoxButtons.OK,MessageBoxIcon.Warning); }
     }
     void Poll() {
         int flags=0;for(int i=0;i<7;i++)if(checks[i].Checked)flags|=1<<i;

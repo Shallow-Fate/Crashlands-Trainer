@@ -1,0 +1,39 @@
+{
+  "version": "1.3.1",
+  "validated_on": "2026-11-16",
+  "timezone": "Asia/Shanghai",
+  "platform": "Windows x64",
+  "steam_build": "20483884",
+  "build_succeeded": true,
+  "launcher_persistence_assertions": 19,
+  "launcher_persistence_passed": true,
+  "native_integration_assertions": 3810,
+  "native_integration_passed": true,
+  "settings_file": "%LOCALAPPDATA%\\CrashlandsTrainer\\game-path.txt",
+  "test_coverage": [
+    "Settings persist across fresh processes and different working directories",
+    "Separate user configuration locations retain independent paths",
+    "Unicode, spaces and ampersands in game paths",
+    "Launcher loads saved path, saves on manual field validation and form closing",
+    "Temporarily missing game retains saved path; empty edits preserve prior setting",
+    "Failed atomic replacement preserves prior configuration and removes temporary files",
+    "Missing, empty or unreadable configuration permits startup",
+    "Production configuration resolves under the current Windows account"
+  ],
+  "game_hook_source_changed": false,
+  "in_game_test": false,
+  "limitation": "Launcher event checks use isolated settings fixtures; no interactive Browse-dialog test or in-game test was performed.",
+  "package_contents_verified": true,
+  "personal_settings_in_package": false,
+  "release_files": {
+    "CrashlandsTrainer.exe": "0c37bbfe9c52b468029aca08daecbf5929a0ea40cab865afad70935a17b21472",
+    "CrashlandsTrainer.dll": "b8855558900627018f15e59a0844e8e933d33d3288d995f01a70de0f6d79b7d0",
+    "README.md": "5db26e0079f7291bf4b6271809dcf03160969652754d3375db55bfe0348346f7",
+    "MinHook-LICENSE.txt": "d5c2224982b0b95a16b098a561335fa93f3eaf4d0aa964b7843edb986df78dc8"
+  },
+  "zip_name": "CrashlandsTrainer-1.3.1.zip",
+  "zip_size": 127843,
+  "zip_sha256": "bc7d8872355534f0e9e04ab89f174871891a69a259d47e8f73567fcdb7e42131",
+  "release_tag": "v1.3.1",
+  "release_url": "https://github.com/Shallow-Fate/Crashlands-Trainer/releases/tag/v1.3.1"
+}
